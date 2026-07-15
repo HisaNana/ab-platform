@@ -1,0 +1,9 @@
+# 以下版本号为参考稳定版（未联网核实撰写日当天的最新 patch 版本），
+# 正式使用前请用 pip freeze 核实并更新。
+streamlit==1.38.0
+plotly==5.24.1
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.1
+pyyaml==6.0.2
+pytest==8.3.3
