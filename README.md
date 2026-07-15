@@ -190,41 +190,6 @@ result = mixture_sequential_probability_ratio(n=5000, sample_mean_diff=0.008,
 
 ---
 
-## 面试问答速查
-
-**Q: 为什么设置 min_runtime_days？**
-A: 防止 peeking problem。当你多次查看结果并在显著时停止，
-相当于做了多次检验，实际假阳性率远高于 α。
-最短运行时长确保数据覆盖一个完整的用户行为周期（通常是 7 天，覆盖工作日+周末差异）。
-
-**Q: Bonferroni 和 BH 校正怎么选？**
-A: 取决于你更关心 FWER 还是 FDR。
-Bonferroni 控制 FWER（任何假阳性的概率），适合少量重要指标。
-BH 控制 FDR（假阳性占显著结果的比例），适合探索性的多指标分析，power 更高。
-在本系统中，北极星指标用 Bonferroni（只有 1 个时无需校正），探索性用 BH。
-
-**Q: AA 实验的假阳性率应该是多少？**
-A: 理论上应接近 α（如 5%）。如果 AA 实验假阳性率显著高于 α，
-说明方差估计有偏（如该用 Delta Method 但用了 Naive 方法），
-或者分流本身有偏。本项目的测试用例会模拟 200 次 AA 实验验证这一点。
-
-**Q: 序贯检验和 min_runtime_days 是不是重复了？**
-A: 不是同一层面的手段。`min_runtime_days` 只是一个"硬性下限"，防止实验运行几小时就下结论，
-但达到下限后如果继续每天查看仍然会引入 peeking 问题。序贯检验（Alpha Spending / mSPRT）
-从统计层面解决了"任意时刻查看都不引入额外假阳性"的问题，两者可以叠加使用。
-
-**Q: Alpha Spending 和 mSPRT 该怎么选？**
-A: 如果能提前确定总共要查看几次（如每天一次，跑 14 天），Alpha Spending（尤其 O'Brien-Fleming）
-是标准选择，前期边界严格，后期趋近传统检验，功效损失小。如果查看时刻不可预知（如业务方随时可能要求
-出结果），mSPRT 的 anytime-valid 特性更合适，但需要对效应量量级有一个先验估计（`tau_squared`）。
-
-**Q: run_analysis() 遇到 SRM 不通过会怎么处理？**
-A: 不会中断计算，而是继续输出全部指标结果，并在 `report.warnings` 中追加结构化告警，
-`report.srm_passed` 置为 `False`。这个设计与 Dashboard 的行为保持一致（先给出 SRM 红色告警，
-但仍展示统计结论），把决策权交给调用方——脚本化调用时可以检查 `srm_passed` 决定是否阻断下游流程。
-
----
-
 ## 技术栈
 
 Python · pandas · numpy · scipy · Streamlit · Plotly · PyYAML · pytest
